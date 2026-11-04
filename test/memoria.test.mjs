@@ -14,6 +14,9 @@ ok(m.limparPII("quero lote de 10x20 e parcela de 500 reais").includes("10x20"), 
 ok(m.idLead("+55 87 98888-7777") === m.idLead("5587988887777"), "idLead estável independente de formatação");
 ok(!m.idLead("5587988887777").includes("8887777"), "idLead não expõe o telefone");
 ok(m.bloqueado("5587999990001") && !m.bloqueado("5587988887777"), "lista de bloqueio (Ana Beatriz e Lúcia)");
+ok(m.bloqueado("558799990001") && m.bloqueado("+55 (87) 99999-0002"), "bloqueio reconhece wa_id sem o 9 e número formatado");
+ok(!m.bloqueado("0001") && !m.bloqueado("5511999990001"), "bloqueio não casa número curto nem outro DDD");
+ok(m.idLead("5587988887777") === m.idLead("558788887777"), "idLead igual com e sem o 9");
 
 // chamadas ao mem0 com fetch simulado
 const chamadas = [];

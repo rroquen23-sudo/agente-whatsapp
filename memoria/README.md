@@ -15,7 +15,8 @@ Código: `lib/memoria.js` (mem0) e `lib/aprendizado.js` (ciclo semanal). Testes:
 - CPF, CNPJ, cartão, e-mail, telefone e RG são removidos em código antes do envio. As instruções de extração também proíbem esses dados.
 - Memória do lead expira em 365 dias (`MEM0_RETENCAO_LEAD_DIAS`).
 - PARAR ou pedido de exclusão: `esquecerLead` apaga tudo do lead.
-- Ana Beatriz, Lúcia e quem pediu PARAR ficam em `NUMEROS_BLOQUEADOS`: sem memória e sem resposta automática.
+- Ana Beatriz, Lúcia e quem pediu PARAR ficam em `NUMEROS_BLOQUEADOS`: sem memória e sem resposta automática. A comparação aceita o número com ou sem o 9 e com ou sem o 55.
+- O número de teste do Roque só entra na lista depois que o agente estiver validado.
 
 ## Como o agente usa a memória em cada mensagem
 1. `contextoLead`: o que já se sabe do cliente.
