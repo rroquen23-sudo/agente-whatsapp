@@ -1,0 +1,17 @@
+{
+  "status": "rascunho: só grava no mem0 depois da decisão do Roque sobre os 12 conflitos",
+  "fonte": "Briefing do Roque 04/11/2026, seção 5.7, sem os itens em conflito",
+  "itens": [
+    { "objecao": "preço", "texto": "Objeção \"está caro\": perguntar quanto cabe por mês e mostrar a parcela, não o valor total. Desconto só com o Roque." },
+    { "objecao": "IGP-M", "texto": "Objeção sobre reajuste: explicar que a parcela é corrigida uma vez por ano pelo IGP-M a partir da 13ª, como no contrato. Não minimizar nem prever o índice." },
+    { "objecao": "decide com a família", "texto": "\"Preciso falar com minha esposa/família\" é bom sinal: oferecer visita com a família e mandar um resumo curto para mostrar." },
+    { "objecao": "vou pensar", "texto": "\"Vou pensar\": perguntar qual ponto ainda pesa (valor, distância, reajuste, momento), tratar esse ponto e agendar o próximo contato." },
+    { "objecao": "entrada", "texto": "Sem a entrada toda: não oferecer parcelamento da entrada. Registrar e levar ao Roque." },
+    { "objecao": "financiamento bancário", "texto": "Financiamento é próprio, direto com a empresa, sem banco e sem consulta de CPF. Forma de pagamento: levantar o interesse e consultar o Roque." },
+    { "objecao": "tamanho do lote", "texto": "Lote pequeno pelo m²: não discutir metragem. Reposicionar para o conjunto (condomínio entregue, infraestrutura, parcela que cabe) e comparar com o que o cliente teria pelo mesmo valor mensal." },
+    { "objecao": "distância", "texto": "\"É longe\": perguntar de onde vem, destacar o uso (fim de semana, investimento) e oferecer visita." },
+    { "objecao": "sem interesse", "texto": "Comprou em outro lugar ou sem interesse: agradecer, não insistir, marcar Perdido com o motivo." },
+    { "objecao": null, "texto": "Visita é o passo que mais fecha: sempre propor, com 2 opções concretas de dia e horário." }
+  ],
+  "fora_ate_decisao": ["documentação/escritura (conflito 2)", "horário de visita (conflito 9)", "taxa de manutenção (conflito 10)", "preço do catálogo (conflito 11)", "andamento do Paraíso Prime (conflito 12)"]
+}

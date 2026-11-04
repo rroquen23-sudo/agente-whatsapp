@@ -6,6 +6,6 @@
     "node": "22.x"
   },
   "scripts": {
-    "test": "node test/webhook.test.mjs"
+    "test": "node test/webhook.test.mjs && node test/memoria.test.mjs"
   }
 }
