@@ -1,0 +1,14 @@
+import crypto from "node:crypto";
+process.env.WHATSAPP_VERIFY_TOKEN="segredo123"; process.env.META_APP_SECRET="appsecret";
+const m = await import(new URL("../api/webhook.js", import.meta.url));
+const ok=(c,msg)=>{ if(!c) {console.error("FAIL",msg);process.exit(1)} console.log("ok",msg) };
+let r=m.GET(new Request("https://x/api/webhook?hub.mode=subscribe&hub.verify_token=segredo123&hub.challenge=42"));
+ok(r.status===200 && await r.text()==="42","verificação certa");
+r=m.GET(new Request("https://x/api/webhook?hub.mode=subscribe&hub.verify_token=errado&hub.challenge=42"));
+ok(r.status===403,"token errado bloqueado");
+const body=JSON.stringify({entry:[{changes:[{value:{messages:[{id:"wamid.1",type:"text",from:"5587999998888",text:{body:"oi"}}]}}]}]});
+const sig="sha256="+crypto.createHmac("sha256","appsecret").update(body).digest("hex");
+r=await m.POST(new Request("https://x/api/webhook",{method:"POST",body,headers:{"x-hub-signature-256":sig}}));
+ok(r.status===200,"POST assinado aceito");
+r=await m.POST(new Request("https://x/api/webhook",{method:"POST",body,headers:{"x-hub-signature-256":"sha256=00"}}));
+ok(r.status===401,"POST com assinatura falsa rejeitado");
