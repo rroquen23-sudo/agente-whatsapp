@@ -35,7 +35,7 @@ Código: `lib/memoria.js` (mem0) e `lib/aprendizado.js` (ciclo semanal). Testes:
 5. Só os aprovados entram no playbook (`aprovarAprendizado`). Régua e briefing só mudam com o mesmo OK.
 
 ## Semente do playbook
-`playbook-semente.json`: as objeções do briefing que não estão em conflito. Entra no mem0 depois da decisão do Roque sobre os 12 conflitos.
+`playbook-semente.json`: táticas do briefing v3.1 (aprovado pelo Roque em 04/11/2026). Gravar com `node scripts/semear-playbook.mjs` depois de configurar `MEM0_API_KEY`.
 
 ## Para ligar
 Variáveis na Vercel: `MEM0_API_KEY` (app.mem0.ai, plano gratuito serve para começar), `MEM0_LEAD_SALT` (texto aleatório longo, nunca muda), `NUMEROS_BLOQUEADOS` (números da Ana Beatriz e da Lúcia, separados por vírgula).
