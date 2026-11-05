@@ -81,3 +81,8 @@ ok(a.interpretarResposta("ACAO: ALERTAR_ROQUE\n---\nVou levar ao Roque.\nMotivo:
 ok(a.interpretarResposta("texto solto").formatoInvalido === true, "formato inválido vira alerta");
 ok(a.extrairMensagens({ entry: [{ changes: [{ value: { contacts: [{ wa_id: "55", profile: { name: "Ana" } }], messages: [{ id: "x", from: "55", type: "text", text: { body: "oi" } }] } }] }] })[0].nome === "Ana", "extrai nome e texto");
 ok(a.ehDomingo(new Date("2026-11-08T12:00:00Z")) && !a.ehDomingo(new Date("2026-11-08T02:00:00Z")), "domingo no fuso de Petrolina");
+
+t = montar();
+r = await t.agente.processar({ ...lead, texto: "Obrigado!" });
+ok(r.resultado === "agradecimento" && !t.chamadas.some((c) => c.url.includes("anthropic")), "agradecimento não chama a IA");
+ok(!a.ehAgradecimento("ok, mas quanto custa?") && a.ehAgradecimento("ok"), "só confirmação curta conta como agradecimento");
