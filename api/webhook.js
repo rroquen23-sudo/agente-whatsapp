@@ -2,6 +2,9 @@
 // GET  = verificação da Meta (hub.challenge).
 // POST = eventos (mensagens recebidas, status). Valida assinatura e responde 200 rápido.
 import crypto from "node:crypto";
+import { waitUntil } from "@vercel/functions";
+import { criarMemoria } from "../lib/memoria.js";
+import { criarAgente, extrairMensagens } from "../lib/agente.js";
 
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN;
 const APP_SECRET = process.env.META_APP_SECRET;
@@ -44,6 +47,26 @@ export async function POST(request) {
   try { body = JSON.parse(raw); } catch { return new Response("Bad JSON", { status: 400 }); }
   const events = summarize(body);
   console.log(JSON.stringify({ agent_enabled: AGENT_ENABLED, events }));
-  // Próxima etapa: modo sombra (gera resposta sugerida e avisa o Roque, sem enviar ao lead).
+  // Modo sombra: responde 200 já e prepara os rascunhos em segundo plano. Nada vai ao lead.
+  if (AGENT_ENABLED) {
+    const msgs = extrairMensagens(body);
+    if (msgs.length) waitUntil(processarEmSegundoPlano(msgs));
+  }
   return new Response("OK", { status: 200 });
+}
+
+async function processarEmSegundoPlano(msgs) {
+  try {
+    const agente = criarAgente({ mem: criarMemoria() });
+    for (const m of msgs) {
+      try {
+        const r = await agente.processar(m);
+        console.log(JSON.stringify({ shadow: r.resultado, acao: r.acao ?? null, sinais: r.sinais?.length ?? 0 }));
+      } catch (e) {
+        console.error(JSON.stringify({ shadow_erro: String(e.message).slice(0, 120) })); // sem texto de mensagem
+      }
+    }
+  } catch (e) {
+    console.error(JSON.stringify({ shadow_config_erro: String(e.message).slice(0, 120) }));
+  }
 }
