@@ -8,7 +8,7 @@ function montar({ env = ENV, llm = "ACAO: RESPONDER\n---\nOlá! Sou o assistente
   const fetchImpl = async (url, init) => {
     const corpo = init?.body ? JSON.parse(init.body) : null;
     chamadas.push({ url, corpo, headers: init?.headers });
-    if (url.includes("anthropic")) return { ok: true, json: async () => ({ content: [{ type: "text", text: llm }] }) };
+    if (url.includes("anthropic")) return { ok: true, json: async () => ({ content: [{ type: "text", text: corpo?.model === "claude-haiku-5-5" ? (globalThis.TRIAGEM ?? "RESPONDER") : llm }] }) };
     return { ok: true, json: async () => ({}) };
   };
   const mem = { pediuParar: async () => optout, contextoLead: async () => ["quer lazer"], playbook: async () => ["perguntar quanto cabe por mês"], lembrarLead: async (...x) => { chamadas.push({ mem: "lembrar", x }); }, registrarEvento: async () => {}, registrarOptOut: async (t) => { chamadas.push({ mem: "optout", t }); } };
@@ -27,7 +27,9 @@ let r = await t.agente.processar(lead);
 const w = enviosWhats(t.chamadas);
 ok(r.resultado === "rascunho" && w.length === 1 && w[0].corpo.to === "5587981446598", "rascunho enviado só ao Roque");
 ok(w[0].corpo.text.body.includes("nada foi enviado ao cliente") && w[0].corpo.text.body.includes("Oi, quanto custa"), "cartão mostra a mensagem do lead e o aviso de sombra");
-const ia = t.chamadas.find((c) => c.url.includes("anthropic"));
+const ia = t.chamadas.find((c) => c.url.includes("anthropic") && c.corpo.model !== "claude-haiku-5-5");
+const tri = t.chamadas.find((c) => c.corpo?.model === "claude-haiku-5-5");
+ok(tri && tri.corpo.max_tokens <= 300, "triagem usa o Haiku");
 ok(ia.corpo.model === "claude-sonnet-5-5" && ia.corpo.output_config.effort === "low", "Sonnet 5.5 com esforço baixo");
 const sis = JSON.stringify(ia.corpo.system);
 ok(sis.includes("BRIEFING") && sis.includes("quer lazer") && sis.includes("quanto cabe"), "prompt leva briefing, memória do lead e playbook");
@@ -86,3 +88,9 @@ t = montar();
 r = await t.agente.processar({ ...lead, texto: "Obrigado!" });
 ok(r.resultado === "agradecimento" && !t.chamadas.some((c) => c.url.includes("anthropic")), "agradecimento não chama a IA");
 ok(!a.ehAgradecimento("ok, mas quanto custa?") && a.ehAgradecimento("ok"), "só confirmação curta conta como agradecimento");
+
+globalThis.TRIAGEM = "IGNORAR";
+t = montar();
+r = await t.agente.processar({ ...lead, texto: "tá certo, até amanhã então" });
+ok(r.resultado === "triagem-ignorar" && !t.chamadas.some((c) => c.corpo?.model === "claude-sonnet-5-5"), "triagem IGNORAR não chama o Sonnet");
+globalThis.TRIAGEM = "RESPONDER";
