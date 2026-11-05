@@ -6,6 +6,9 @@
     "node": "22.x"
   },
   "scripts": {
-    "test": "node test/webhook.test.mjs"
+    "test": "node test/webhook.test.mjs && node test/memoria.test.mjs && node test/agente.test.mjs"
+  },
+  "dependencies": {
+    "@vercel/functions": "^3.10.6"
   }
 }

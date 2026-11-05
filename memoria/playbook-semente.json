@@ -1,0 +1,72 @@
+{
+  "status": "aprovado pelo Roque no briefing v3.1 (04/11/2026); grava no mem0 com scripts/semear-playbook.mjs quando MEM0_API_KEY existir",
+  "fonte": "briefing/briefing-v3.1.md, seções 2.3, 5.4 e 5.7",
+  "itens": [
+    {
+      "objecao": "preço",
+      "texto": "Objeção \"está caro\": perguntar quanto cabe por mês e mostrar a parcela, não o valor total. Desconto só com o Roque."
+    },
+    {
+      "objecao": "IGP-M",
+      "texto": "Objeção sobre reajuste: explicar que a parcela é corrigida uma vez por ano pelo IGP-M a partir da 13ª, como no contrato. Não minimizar nem prever o índice."
+    },
+    {
+      "objecao": "decide com a família",
+      "texto": "\"Preciso falar com minha esposa/família\" é bom sinal: oferecer visita com a família e mandar um resumo curto para mostrar."
+    },
+    {
+      "objecao": "vou pensar",
+      "texto": "\"Vou pensar\": perguntar qual ponto ainda pesa (valor, distância, reajuste, momento), tratar esse ponto e agendar o próximo contato."
+    },
+    {
+      "objecao": "entrada",
+      "texto": "Sem a entrada toda: não oferecer parcelamento da entrada. Registrar e levar ao Roque."
+    },
+    {
+      "objecao": "financiamento bancário",
+      "texto": "Financiamento é próprio, direto com a empresa, sem banco e sem consulta de CPF. Forma de pagamento: levantar o interesse e consultar o Roque."
+    },
+    {
+      "objecao": "tamanho do lote",
+      "texto": "Lote pequeno pelo m²: não discutir metragem. Reposicionar para o conjunto (condomínio entregue, infraestrutura, parcela que cabe) e comparar com o que o cliente teria pelo mesmo valor mensal."
+    },
+    {
+      "objecao": "distância",
+      "texto": "\"É longe\": perguntar de onde vem, destacar o uso (fim de semana, investimento) e oferecer visita."
+    },
+    {
+      "objecao": "sem interesse",
+      "texto": "Comprou em outro lugar ou sem interesse: agradecer, não insistir, marcar Perdido com o motivo."
+    },
+    {
+      "objecao": null,
+      "texto": "Visita é o passo que mais fecha: sempre propor, com 2 opções concretas de dia e horário."
+    },
+    {
+      "objecao": "documentação",
+      "texto": "\"É seguro? E a documentação?\": mostrar o que está pronto (água, luz, portaria, lazer, +1.080 clientes, 14 anos) e convidar para a visita. Escritura: nunca puxar o assunto; se perguntarem, dizer só \"está em regularização\". Se insistir em prazo, andamento ou detalhes, passar para o Roque."
+    },
+    {
+      "objecao": "cliente frio",
+      "texto": "Cliente frio: abrir com credibilidade em 2 linhas (14 anos, mais de 1.080 clientes, Águas do Vale entregue) antes de qualificar."
+    },
+    {
+      "objecao": "contrato antes",
+      "texto": "Pedido de contrato antes do fechamento: \"O contrato é redigido no fechamento. Posso te mostrar o condomínio e tirar todas as dúvidas na visita.\""
+    },
+    {
+      "objecao": null,
+      "texto": "Horário de visita: segunda a sexta, 8h às 16h, oferecendo 2 ou 3 opções no horário confortável para o cliente. Sábado e domingo só com OK do Roque."
+    },
+    {
+      "objecao": null,
+      "texto": "Primeira pergunta de pagamento: à vista ou financiado. À vista usa a condição da semana; parcelado usa a tabela do Drive."
+    }
+  ],
+  "aprovado_em": "2026-11-04",
+  "a_confirmar": [
+    "IPTU do Águas do Vale R$ 90 a 120: mensal ou anual?",
+    "Condição da semana (preço à vista)",
+    "Nome do posto de encontro"
+  ]
+}
