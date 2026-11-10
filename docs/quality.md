@@ -40,7 +40,7 @@ Escopo pelo risco do diff. Mudança em `lib/agente.js`, `lib/memoria.js` ou `api
 
 - Prompt reutilizável: `docs/prompts/security-review.md` (bloco do prompt 13 do toolkit, revisão 790a895). Modo repositório ou diff (base e head explícitos).
 - Alternativa com plugin: claude-security (scan multiagente com verificação; gera patches, nunca aplica). Exige a ferramenta Workflow e consentimento explícito de custo; não rodou em 10/11/2026 por falta da ferramenta na sessão de nuvem.
-- Relatório sempre privado e fora do repositório. Baseline manual de 10/11/2026 (prompt 13): `/mnt/project-files/agente-whatsapp/setup-toolkit/security/` (pasta do projeto no Claude). Achado principal: memória do lead entra no bloco de sistema (injeção de prompt persistente); corrigir antes de qualquer modo automático.
+- Relatório sempre privado e fora do repositório. Baseline manual de 10/11/2026 (prompt 13): `/mnt/project-files/agente-whatsapp/setup-toolkit/security/` (pasta do projeto no Claude). Achado principal F1 (memória do lead no bloco de sistema) corrigido: memória e playbook vão na mensagem do usuário como dados delimitados e sanitizados (`sanitizarDado`, `montarMensagemUsuario` em `lib/agente.js`), com regra fixa de não obedecer esses dados; `avaliarRisco` e a trava de `enviar()` continuam. Controle por prompt reduz o risco, não elimina: no modo automático, revisar de novo.
 - Somente leitura por padrão; correção exige pedido separado. Nenhum achado não significa projeto seguro.
 
 ## Dependências e entrega
