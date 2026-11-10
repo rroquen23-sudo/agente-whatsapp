@@ -62,3 +62,15 @@ ok(a.analisarSemana(ev.slice(0, 3)).candidatos.length === 0, "amostra pequena n�
 const txt = a.relatorioTexto(an, "09/11 a 15/11");
 ok(txt.includes("aprovo") && txt.includes("Perdas: Sem retorno 2"), "relatório com funil, perdas e pedido de aprovação");
 ok(JSON.stringify(a.lerAprovacao("Aprovo 1, 3", 3)) === "[1,3]" && a.lerAprovacao("aprovo todos", 2).length === 2 && a.lerAprovacao("nenhum", 3).length === 0 && a.lerAprovacao("aprovo 9", 3).length === 0, "lê a aprovação do Roque");
+
+// resiliência no mem0: busca repete em 503, gravação não repete (evita duplicar memória)
+{
+  const resp = (status) => ({ ok: status < 400, status, headers: { get: () => null }, json: async () => ({ results: [{ memory: "x" }] }) });
+  let n = 0;
+  const memB = m.criarMemoria({ apiKey: "k", dormir: async () => {}, fetchImpl: async () => resp(++n === 1 ? 503 : 200) });
+  ok((await memB.contextoLead("5587988887777", "oi")).length === 1 && n === 2, "busca no mem0 repete depois de 503");
+  let g = 0, erro = null;
+  const memG = m.criarMemoria({ apiKey: "k", dormir: async () => {}, fetchImpl: async () => { g++; return resp(503); } });
+  try { await memG.lembrarLead("5587988887777", [{ role: "user", content: "oi" }]); } catch (e) { erro = e; }
+  ok(erro && g === 1, "gravação no mem0 não é repetida");
+}

@@ -94,3 +94,46 @@ t = montar();
 r = await t.agente.processar({ ...lead, texto: "tá certo, até amanhã então" });
 ok(r.resultado === "triagem-ignorar" && !t.chamadas.some((c) => c.corpo?.model === "claude-sonnet-5-5"), "triagem IGNORAR não chama o Sonnet");
 globalThis.TRIAGEM = "RESPONDER";
+
+// resiliência (omniout): retry, fallback na triagem e alerta quando a IA cai
+function montarFalhas(responder) {
+  const chamadas = [];
+  const fetchImpl = async (url, init) => {
+    const corpo = init?.body ? JSON.parse(init.body) : null;
+    chamadas.push({ url, corpo });
+    const n = chamadas.filter((c) => c.url === url && c.corpo?.model === corpo?.model).length;
+    const status = responder(url, corpo, n) ?? 200;
+    const texto = corpo?.system?.[0]?.text ? "ACAO: RESPONDER\n---\nOlá! Sou o assistente virtual do Roque." : "RESPONDER";
+    return { ok: status < 400, status, headers: { get: () => null }, json: async () => ({ content: [{ type: "text", text: texto }] }) };
+  };
+  const mem = { pediuParar: async () => false, contextoLead: async () => [], playbook: async () => [], lembrarLead: async () => {}, registrarEvento: async () => {}, registrarOptOut: async () => {} };
+  return { chamadas, agente: a.criarAgente({ env: ENV, mem, fetchImpl, agora: () => new Date("2026-11-04T15:00:00Z"), briefing: "BRIEFING", dormir: async () => {} }) };
+}
+const sonnet = (c) => c.filter((x) => x.corpo?.model === "claude-sonnet-5-5" && Array.isArray(x.corpo.system));
+
+t = montarFalhas((url, corpo, n) => (corpo?.model === "claude-sonnet-5-5" && n === 1 ? 529 : null));
+r = await t.agente.processar(lead);
+ok(r.resultado === "rascunho" && sonnet(t.chamadas).length === 2, "Sonnet sobrecarregado (529) é repetido e o rascunho sai");
+
+t = montarFalhas((url, corpo) => (corpo?.model === "claude-sonnet-5-5" ? 503 : null));
+r = await t.agente.processar(lead);
+let w2 = enviosWhats(t.chamadas);
+ok(r.resultado === "ia-indisponivel" && w2.length === 1 && w2[0].corpo.to === "5587981446598" && w2[0].corpo.text.body.includes("IA indisponível"), "Sonnet fora do ar: Roque recebe alerta em vez de silêncio");
+ok(!t.chamadas.some((c) => c.corpo?.model === "claude-haiku-5-5" && Array.isArray(c.corpo.system)), "rascunho nunca cai para o Haiku");
+
+t = montarFalhas((url, corpo) => (corpo?.model === "claude-sonnet-5-5" ? 401 : null));
+r = await t.agente.processar(lead);
+ok(r.resultado === "ia-indisponivel" && sonnet(t.chamadas).length === 1, "chave inválida (401) não é repetida e vira alerta");
+
+t = montarFalhas((url, corpo) => (corpo?.model === "claude-haiku-5-5" ? 503 : null));
+r = await t.agente.processar(lead);
+const triagens = t.chamadas.filter((c) => typeof c.corpo?.system === "string");
+ok(r.resultado === "rascunho" && triagens.map((c) => c.corpo.model).join() === "claude-haiku-5-5,claude-haiku-5-5,claude-sonnet-5-5", "triagem: Haiku esgotado cai para o Sonnet");
+
+t = montarFalhas((url, corpo) => (corpo?.model ? 503 : null));
+r = await t.agente.processar(lead);
+ok(r.resultado === "ia-indisponivel", "triagem fora do ar continua respondendo (nunca deixa o lead no vácuo)");
+
+t = montarFalhas((url, corpo, n) => (url.includes("graph.facebook.com") && n === 1 ? 503 : null));
+r = await t.agente.processar(lead);
+ok(r.resultado === "rascunho" && enviosWhats(t.chamadas).length === 2, "envio ao Roque é repetido quando a Meta falha");

@@ -1,6 +1,6 @@
 # Publicar o webhook do agente na Vercel
 
-O que este servidor faz hoje: responde à verificação da Meta, recebe mensagens e status, confere a assinatura da Meta e registra só o tipo do evento, sem o texto (LGPD). Ele ainda não responde aos leads: o modo sombra é a próxima etapa. `AGENT_ENABLED=false` é o botão de desligar.
+O que este servidor faz hoje: responde à verificação da Meta, recebe mensagens e status, confere a assinatura da Meta e registra só o tipo do evento, sem o texto (LGPD). Com `AGENT_ENABLED=true` roda o **modo sombra**: prepara rascunhos e manda só para o número do Roque (`ALERTA_WHATSAPP`); nada vai ao lead. `AGENT_ENABLED=false` é o botão de desligar. Lista completa de variáveis (mem0, Anthropic, bloqueio, alerta): `.env.example` e `memoria/README.md`.
 
 ## 1. Subir o código no GitHub (sem terminal)
 1. github.com → **New repository** → nome `agente-whatsapp` → **Private** → Create.
