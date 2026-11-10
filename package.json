@@ -6,9 +6,17 @@
     "node": "22.x"
   },
   "scripts": {
-    "test": "node test/webhook.test.mjs && node test/memoria.test.mjs && node test/agente.test.mjs"
+    "lint": "eslint .",
+    "lint:rules": "node eslint-rules/verify.mjs eslint-rules/index.cjs",
+    "test": "node test/webhook.test.mjs && node test/memoria.test.mjs && node test/agente.test.mjs && node test/resiliencia.test.mjs",
+    "check": "npm run lint && npm run lint:rules && npm test"
   },
   "dependencies": {
     "@vercel/functions": "^3.10.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0"
   }
 }
