@@ -80,5 +80,5 @@
 ## Pendências
 
 - claude-security completo numa sessão com a ferramenta Workflow (e seu OK de custo).
-- Corrigir F1 (memória do lead no bloco de sistema) antes do modo automático.
+- F1 corrigido (memória como dado delimitado, fora do system). Revalidar antes do modo automático.
 - Reexecutar smoke cases numa sessão nova do Claude Code.
