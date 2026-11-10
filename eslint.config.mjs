@@ -7,7 +7,7 @@ import globals from "globals";
 import quality from "./eslint-rules/index.cjs";
 
 export default defineConfig([
-  globalIgnores(["node_modules/", ".vercel/", "public/"]),
+  globalIgnores(["node_modules/", ".vercel/", "public/", ".claude/"]),
   js.configs.recommended,
   {
     languageOptions: { ecmaVersion: "latest", sourceType: "module", globals: globals.node },

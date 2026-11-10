@@ -11,9 +11,10 @@ Webhook do WhatsApp Cloud API na Vercel que lê mensagens de leads, consulta a m
 ## Comandos
 
 - Instalar: `npm ci`
-- Testes: `npm test` (scripts em `test/`, saída `ok ...` por caso; falha encerra com código 1)
+- Testes: `npm test` (scripts em `test/`, saída `ok ...` por caso; falha encerra com código 1). Arquivo de teste novo precisa entrar no script `test` do `package.json`.
 - Lint: `npm run lint`
-- Verificação completa: `npm run check` (lint + testes). Rode antes de todo commit.
+- Autoteste das regras de lint: `npm run lint:rules`
+- Verificação completa: `npm run check` (lint + autoteste das regras + testes). Rode antes de todo commit.
 - Desenvolvimento local: não há servidor local; teste por `test/` com `fetchImpl` falso. Publicação: `COMO-PUBLICAR.md`.
 - Tipos e build: inexistentes (JavaScript puro, sem etapa de build).
 

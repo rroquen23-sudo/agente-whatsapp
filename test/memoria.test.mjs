@@ -73,4 +73,7 @@ ok(JSON.stringify(a.lerAprovacao("Aprovo 1, 3", 3)) === "[1,3]" && a.lerAprovaca
   const memG = m.criarMemoria({ apiKey: "k", dormir: async () => {}, fetchImpl: async () => { g++; return resp(503); } });
   try { await memG.lembrarLead("5587988887777", [{ role: "user", content: "oi" }]); } catch (e) { erro = e; }
   ok(erro && g === 1, "gravação no mem0 não é repetida");
+  let l = 0;
+  const memL = m.criarMemoria({ apiKey: "k", dormir: async () => {}, fetchImpl: async () => resp(++l === 1 ? 503 : 200) });
+  ok((await memL.pediuParar("5587988887777")) === true && l === 2, "checagem de opt-out (listagem) repete depois de 503");
 }

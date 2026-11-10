@@ -130,10 +130,30 @@ r = await t.agente.processar(lead);
 const triagens = t.chamadas.filter((c) => typeof c.corpo?.system === "string");
 ok(r.resultado === "rascunho" && triagens.map((c) => c.corpo.model).join() === "claude-haiku-5-5,claude-haiku-5-5,claude-sonnet-5-5", "triagem: Haiku esgotado cai para o Sonnet");
 
-t = montarFalhas((url, corpo) => (corpo?.model ? 503 : null));
+t = montarFalhas((url, corpo) => (corpo?.model && typeof corpo.system === "string" ? 503 : null));
 r = await t.agente.processar(lead);
-ok(r.resultado === "ia-indisponivel", "triagem fora do ar continua respondendo (nunca deixa o lead no vácuo)");
+const tri2 = t.chamadas.filter((c) => typeof c.corpo?.system === "string").map((c) => c.corpo.model);
+ok(r.resultado === "rascunho" && tri2.join() === "claude-haiku-5-5,claude-haiku-5-5,claude-sonnet-5-5,claude-sonnet-5-5" && sonnet(t.chamadas).length === 1, "triagem toda fora do ar: tenta Haiku e Sonnet e segue para o rascunho");
 
-t = montarFalhas((url, corpo, n) => (url.includes("graph.facebook.com") && n === 1 ? 503 : null));
+t = montarFalhas((url, corpo, n) => (url.includes("graph.facebook.com") && n === 1 ? 429 : null));
 r = await t.agente.processar(lead);
-ok(r.resultado === "rascunho" && enviosWhats(t.chamadas).length === 2, "envio ao Roque é repetido quando a Meta falha");
+ok(r.resultado === "rascunho" && enviosWhats(t.chamadas).length === 2, "Meta recusou com 429: envio ao Roque é repetido");
+t = montarFalhas((url) => (url.includes("graph.facebook.com") ? 503 : null));
+erro = null; try { await t.agente.processar(lead); } catch (e) { erro = e; }
+ok(erro && enviosWhats(t.chamadas).length === 1, "Meta com 5xx: envio não é repetido (evita cartão duplicado)");
+
+// prazo: com orçamento curto, o rascunho travado é cortado e o alerta ainda sai
+{
+  const chamadas = [];
+  const fetchImpl = async (url, init) => {
+    const corpo = init?.body ? JSON.parse(init.body) : null;
+    chamadas.push({ url, corpo });
+    if (corpo?.system && Array.isArray(corpo.system)) return new Promise((_, rej) => init.signal.addEventListener("abort", () => rej(init.signal.reason)));
+    return { ok: true, status: 200, headers: { get: () => null }, json: async () => ({ content: [{ type: "text", text: "RESPONDER" }] }) };
+  };
+  const mem = { pediuParar: async () => false, contextoLead: async () => [], playbook: async () => [], lembrarLead: async () => {}, registrarEvento: async () => {} };
+  const ag = a.criarAgente({ env: ENV, mem, fetchImpl, agora: () => new Date("2026-11-04T15:00:00Z"), briefing: "B", dormir: async () => {}, orcamentoMs: 1500 });
+  const inicio = Date.now();
+  r = await ag.processar(lead);
+  ok(r.resultado === "ia-indisponivel" && Date.now() - inicio < 3000 && enviosWhats(chamadas).length === 1, "rascunho travado respeita o prazo e o Roque recebe o alerta");
+}

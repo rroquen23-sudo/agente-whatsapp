@@ -12,7 +12,7 @@ Node.js 22 (ESM) em Vercel Functions. `fetch` nativo para Meta Graph API (v21.0)
 | `lib/agente.js` | Regras de entrada (bloqueio, PARAR, domingo, agradecimento, mídia), triagem (Haiku), rascunho (Sonnet), sinais de risco, cartão ao Roque e trava de envio |
 | `lib/memoria.js` | Cliente mem0: memória do lead, playbook, eventos, opt-out; hash do telefone, `limparPII`, `bloqueado` |
 | `lib/aprendizado.js` | Análise semanal determinística e candidatos a playbook |
-| `lib/resiliencia.js` | `fetchComResiliencia`: timeout por tentativa, retry com backoff só para erros transitórios |
+| `lib/resiliencia.js` | `fetchComResiliencia` (timeout por tentativa incluindo a leitura do corpo, retry com backoff só em transitórios, prazo), `comFallback` (troca de modelo) e `ate` (corta etapa no prazo) |
 | `scripts/semear-playbook.mjs` | Grava o playbook inicial no mem0 (execução manual) |
 | `briefing/` | Manual do agente; entra no prompt e no bundle (`vercel.json` → `includeFiles`) |
 | `public/` | Páginas estáticas de privacidade e exclusão de dados |
@@ -32,7 +32,7 @@ Meta ──POST──▶ api/webhook.js ──assinatura ok──▶ 200 imediat
 
 Fronteiras de confiança: o corpo da Meta só é lido depois da assinatura; o texto do lead é limpo de PII antes de ir para IA ou memória; a saída da IA é tratada como rascunho e passa por `avaliarRisco` antes de chegar ao Roque.
 
-Todas as chamadas externas passam por `fetchComResiliencia` (timeout de 15 s por tentativa, 1 retry em 429/5xx/timeout/erro de rede). O orçamento total cabe nos 60 s da função.
+Todas as chamadas externas passam por `fetchComResiliencia`. Cada mensagem tem um prazo de 38 s (`ORCAMENTO_MS`) para memória e IA; timeouts e esperas encolhem para caber nele. O envio ao Roque fica fora do prazo, com reserva de até 21 s, e só repete em 429 (5xx ou timeout podem já ter entregue). Pior caso: cerca de 59 s, dentro dos 60 s da função. Mensagens em lote são processadas em série e podem não caber (achado F4 da revisão de segurança).
 
 ## Dados
 

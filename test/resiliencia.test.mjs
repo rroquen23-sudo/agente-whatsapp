@@ -74,3 +74,39 @@ e = null; try { await r.comFallback(["haiku", "sonnet"], async (m) => { usados.p
 ok(e && usados.length === 1, "erro definitivo (chave inválida) não troca de modelo");
 e = null; try { await r.comFallback(["sonnet"], async () => { throw Object.assign(new Error("x"), { transitorio: true }); }, { log: () => {} }); } catch (x) { e = x; }
 ok(e && e.transitorio, "sem próximo modelo, o erro sobe");
+
+// corpo: resposta não-OK é descartada; corpo travado conta no timeout; JSON inválido não repete
+{
+  let cancelados = 0;
+  let n = 0;
+  const f = async () => (++n === 1 ? { ok: false, status: 503, headers: { get: () => null }, body: { cancel: async () => { cancelados++; } } } : { ok: true, status: 200, text: async () => '{"a":1}' });
+  const out = await r.fetchComResiliencia(f, "u", {}, opts());
+  ok(cancelados === 1 && out.dados.a === 1, "corpo da resposta com erro é descartado e o JSON da boa é lido");
+  let m = 0;
+  const trava = async (url, init) => ({ ok: true, status: 200, text: () => (++m === 1 ? new Promise((_, rej) => init.signal.addEventListener("abort", () => rej(init.signal.reason))) : Promise.resolve("{}")) });
+  await r.fetchComResiliencia(trava, "u", {}, opts({ timeoutMs: 20 }));
+  ok(m === 2, "corpo que trava depois dos cabeçalhos cai no timeout e repete");
+  let k = 0;
+  let e = null; try { await r.fetchComResiliencia(async () => { k++; return { ok: true, status: 200, text: async () => "<html>" }; }, "u", {}, opts()); } catch (x) { e = x; }
+  ok(e && e.transitorio === false && k === 1, "JSON inválido não é repetido");
+}
+
+// prazo e chamadas não idempotentes
+{
+  let n = 0;
+  let e = null; try { await r.fetchComResiliencia(async () => { n++; return { ok: false, status: 503, headers: { get: () => null } }; }, "u", {}, opts({ statusRepetiveis: new Set([429]) })); } catch (x) { e = x; }
+  ok(e && n === 1, "status fora da lista de repetíveis não repete");
+  n = 0;
+  e = null; try { await r.fetchComResiliencia(async () => { n++; throw new TypeError("fetch failed"); }, "u", {}, opts({ repetirRede: false })); } catch (x) { e = x; }
+  ok(e && e.transitorio && n === 1, "erro de rede não repete quando a chamada pode ter sido entregue");
+  n = 0;
+  e = null; try { await r.fetchComResiliencia(async () => { n++; return { ok: true, status: 200, text: async () => "{}" }; }, "u", {}, opts({ prazo: Date.now() + 500 })); } catch (x) { e = x; }
+  ok(e && n === 0 && /prazo/.test(e.message), "sem tempo no prazo, nem começa");
+  t = roteiro("trava");
+  const inicio = Date.now();
+  e = null; try { await r.fetchComResiliencia(t.fetchImpl, "u", {}, opts({ timeoutMs: 60000, tentativas: 3, prazo: Date.now() + 1200 })); } catch (x) { e = x; }
+  ok(e && Date.now() - inicio < 1500 && t.chamadas.length === 1, "timeout encolhe para caber no prazo e não repete sem tempo");
+  e = null;
+  try { await r.ate(Date.now() + 30, new Promise(() => {})); } catch (x) { e = x; }
+  ok(e && e.transitorio, "ate() corta promessa que passa do prazo");
+}
